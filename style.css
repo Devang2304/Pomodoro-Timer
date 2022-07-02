@@ -28,10 +28,10 @@ progress{
     left: 0;
 }
     progress::-webkit-progress-bar{
-        background-color: rgba(0,0,0,0.1);
+        background-color: rgba(0,0,0,1);
     }
     progress::-webkit-progress-bar{
-        background-color:#fff;
+        background-color:aqua;
     }
 .timer{
     position: absolute;

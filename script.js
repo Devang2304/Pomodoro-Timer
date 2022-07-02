@@ -3,6 +3,7 @@ const timer = {
   shortBreak: 5,
   longBreak: 15,
   longBreakInterval: 4,
+  sessions:0,
 };
 
 let interval;
@@ -39,6 +40,8 @@ function startTimer() {
   let { total } = timer.remainingTime;
   const endTime = Date.parse(new Date()) + total * 1000;
 
+  if(timer.mode==='pomodoro') timer.sessions++;
+
   mainButton.dataset.action = 'stop';
   mainButton.textContent = 'stop';
   mainButton.classList.add('active');
@@ -50,6 +53,20 @@ function startTimer() {
     total = timer.remainingTime.total;
     if (total <= 0) {
       clearInterval(interval);
+      switch (timer.mode) {
+        case 'pomodoro':
+          if (timer.sessions%timer.longBreakInterval===0) {
+            switchMode('longBreak');
+          }
+          else{
+            switchMode('shortBreak');
+          }
+          break;
+      
+        default:switchMode('pomodoro');
+          
+      }
+      startTimer();
     }
   }, 1000);
 }
@@ -71,6 +88,12 @@ function updateClock() {
   const sec = document.getElementById('js-seconds');
   min.textContent = minutes;
   sec.textContent = seconds;
+  
+  const text=timer.mode==='pomodoro' ? 'Work Time!':'Take a break!';
+  document.title=`${minutes}:${seconds}-${text}`;
+  
+  const progress=document.getElementById('js-progress');
+  progress.value=timer[timer.mode]*60-timer.remainingTime.total;
 }
 
 function switchMode(mode) {
@@ -86,6 +109,15 @@ function switchMode(mode) {
     .forEach(e => e.classList.remove('active'));
   document.querySelector(`[data-mode="${mode}"]`).classList.add('active');
   document.body.style.backgroundColor = `var(--${mode})`;
+
+  document
+  .querySelectorAll('button[data-mode]')
+  .forEach(e=>e.classList.remove('active'));
+  document.querySelector(`[data-mode="${mode}"`).classList.add('active');
+  document.body.style.backgroundColor=`var(--${mode})`;
+  document
+  .getElementById('js-progress')
+  .setAttribute('max',timer.remainingTime.total);
 
   updateClock();
 }
